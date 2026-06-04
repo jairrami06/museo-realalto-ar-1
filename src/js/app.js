@@ -50,8 +50,11 @@ function exitARExperience() {
  * @param {string} markerId - ID del marcador detectado
  * @param {string} entityId - ID de la entidad 3D a anclar
  */
+/**
+ * FUNCIÓN CORREGIDA: Desvincula la entidad y la fuerza a posicionarse 
+ * de forma relativa y visible ante la cámara del usuario.
+ */
 function anchorEntityToWorld(markerId, entityId) {
-    // Si ya fue anclado previamente, ignoramos para evitar bucles
     if (AppState.anchoredModels[markerId]) return;
 
     const markerEl = document.getElementById(markerId);
@@ -63,25 +66,32 @@ function anchorEntityToWorld(markerId, entityId) {
         AppState.anchoredModels[markerId] = true;
         AppState.currentMarker = markerId;
 
-        // 1. Obtener la posición y rotación del marcador en el espacio del mundo real
-        const worldPosition = new THREE.Vector3();
-        const worldQuaternion = new THREE.Quaternion();
-        const worldScale = new THREE.Vector3();
-        
-        entityEl.object3D.updateMatrixWorld();
-        entityEl.object3D.matrixWorld.decompose(worldPosition, worldQuaternion, worldScale);
+        // 1. Detener la animación por defecto de rotación automática para evitar conflictos de matrices
+        entityEl.removeAttribute('animation');
 
-        // 2. Mover la entidad 3D directamente a la raíz de la escena (independiente del marcador)
+        // 2. Mover la entidad fuera del marcador directo a la escena global
         sceneEl.appendChild(entityEl);
 
-        // 3. Asignarle las coordenadas calculadas para que no se mueva visualmente al cambiar de padre
-        entityEl.object3D.position.copy(worldPosition);
-        entityEl.object3D.quaternion.copy(worldQuaternion);
+        // 3. Forzar posición fija relativa al horizonte del usuario
+        // '0 0 -2' significa: 0 en X (centrado), 0 en Y (a la altura de los ojos), -2 en Z (2 metros al frente)
+        entityEl.setAttribute('position', '0 0 -2');
         
-        // Ajuste fino para exteriores: Si el marcador estaba muy lejos, lo fijamos a 2.5 metros frente a la cámara
-        entityEl.setAttribute('position', '0 0 -2.5');
+        // 4. Resetear rotación inicial para que el control de gestos táctiles inicie en limpio
+        entityEl.setAttribute('rotation', '0 0 0');
 
-        // 4. Actualizar la interfaz de usuario con éxito persistente
+        // 5. Normalizar la escala para asegurar visibilidad macro en exteriores
+        if (markerId === 'marker-hiro') {
+            entityEl.setAttribute('scale', '0.4 0.4 0.4'); // Escala óptima para el patito de pruebas
+        } else if (markerId === 'marker-kanji') {
+            entityEl.setAttribute('scale', '0.15 0.15 0.15'); // Escala óptima para la lámpara
+        }
+
+        // 6. Forzar actualización del motor de renderizado de A-Frame
+        if (entityEl.object3D) {
+            entityEl.object3D.visible = true;
+        }
+
+        // 7. Actualizar la interfaz de usuario con éxito persistente
         const data = ArqueologiaData[markerId];
         statusText.innerHTML = `<strong class="text-green-400">✓ Estación Fijada:</strong> ${data.titulo}<br><span class="text-[11px] text-amber-400">${data.instrucciones}</span>`;
     }
