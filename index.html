@@ -8,10 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
+    <script src="src/js/app.js"></script>
     
     <style>
         body { margin: 0; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
@@ -56,9 +54,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
-            <span class="bg-stone-950/80 backdrop-blur-md text-amber-400 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-stone-800">
-                Escáner Activo
-            </span>
+            <div class="flex gap-2">
+                <span class="bg-stone-950/80 backdrop-blur-md text-amber-400 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-stone-800">
+                    Escáner Activo
+                </span>
+                <span id="gyro-debug" class="bg-stone-950/80 backdrop-blur-md text-rose-500 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-stone-800">
+                    Giroscopio: Sin Señal ⚠️
+                </span>
+            </div>
             <div class="w-10"></div> </div>
 
         <div class="w-full bg-stone-950/90 text-white p-4 rounded-xl pointer-events-auto border border-stone-800 shadow-2xl mb-4 max-w-md mx-auto">
@@ -83,39 +86,45 @@
             <a-asset-item id="model-estacion2" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Lantern/glTF-Binary/Lantern.glb"></a-asset-item>
         </a-assets>
 
+        <!-- Contenedor con rotación de giroscopio para mantener los modelos fijos en el espacio físico -->
+        <a-entity id="world-anchor-container" gyro-rotation>
+            <!-- Modelos globales con contenedores para separar tracking de gestos -->
+            <a-entity id="anchor-estacion1" position="0 0 -5" visible="false">
+                <a-entity gltf-model="#model-estacion1" 
+                          scale="0.6 0.6 0.6" 
+                          class="clickable"
+                          gesture-handler="rotationEnabled: true; scaleEnabled: true">
+                </a-entity>
+            </a-entity>
+
+            <a-entity id="anchor-estacion2" position="0 0 -5" visible="false">
+                <a-entity gltf-model="#model-estacion2" 
+                          scale="0.2 0.2 0.2" 
+                          class="clickable"
+                          gesture-handler="rotationEnabled: true; scaleEnabled: true">
+                </a-entity>
+            </a-entity>
+        </a-entity>
+
+        <!-- Marcadores que controlan el anclaje de sus respectivos modelos -->
         <a-marker preset="hiro" 
                   id="marker-hiro" 
+                  marker-anchor="target: #anchor-estacion1"
                   raycaster="objects: .clickable" 
                   emitevents="true" 
                   cursor="fuse: false; rayOrigin: mouse;">
-            
-            <a-entity id="entity-hiro"
-                      gltf-model="#model-estacion1" 
-                      scale="0.6 0.6 0.6" 
-                      position="0 0 0"
-                      class="clickable"
-                      gesture-handler="rotationEnabled: true; scaleEnabled: false">
-            </a-entity>
         </a-marker>
 
         <a-marker preset="kanji" 
                   id="marker-kanji" 
+                  marker-anchor="target: #anchor-estacion2"
                   raycaster="objects: .clickable" 
                   emitevents="true" 
                   cursor="fuse: false; rayOrigin: mouse;">
-            
-            <a-entity id="entity-kanji"
-                      gltf-model="#model-estacion2" 
-                      scale="0.2 0.2 0.2" 
-                      position="0 0 0"
-                      class="clickable"
-                      gesture-handler="rotationEnabled: true; scaleEnabled: false">
-            </a-entity>
         </a-marker>
 
+        <!-- Cámara simple controlada por AR.js -->
         <a-entity camera></a-entity>
     </a-scene>
-
-    <script src="src/js/app.js"></script>
 </body>
 </html>
