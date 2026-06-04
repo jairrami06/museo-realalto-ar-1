@@ -82,8 +82,8 @@
              id="ar-scene">
         
         <a-assets>
-            <a-asset-item id="model-estacion1" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Duck/glTF-Binary/Duck.glb"></a-asset-item>
-            <a-asset-item id="model-estacion2" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Lantern/glTF-Binary/Lantern.glb"></a-asset-item>
+            <a-asset-item id="model-estacion1" src="public/assets/models/valdivia.glb"></a-asset-item>
+            <a-asset-item id="model-estacion2" src="public/assets/models/valdivia.glb"></a-asset-item>
         </a-assets>
 
         <!-- Contenedor con rotación de giroscopio para mantener los modelos fijos en el espacio físico -->
@@ -107,20 +107,21 @@
         </a-entity>
 
         <!-- Marcadores que controlan el anclaje de sus respectivos modelos -->
-        <a-marker preset="hiro" 
-                  id="marker-hiro" 
-                  marker-anchor="target: #anchor-estacion1"
-                  raycaster="objects: .clickable" 
-                  emitevents="true" 
-                  cursor="fuse: false; rayOrigin: mouse;">
+        <a-marker type="pattern"
+          url="public/assets/markers/pattern-marcador-1.patt"
+          id="marker-hiro"
+          marker-anchor="target: #anchor-estacion1"
+          raycaster="objects: .clickable"
+          emitevents="true"
+          cursor="fuse: false; rayOrigin: mouse;">
         </a-marker>
-
-        <a-marker preset="kanji" 
-                  id="marker-kanji" 
-                  marker-anchor="target: #anchor-estacion2"
-                  raycaster="objects: .clickable" 
-                  emitevents="true" 
-                  cursor="fuse: false; rayOrigin: mouse;">
+        <a-marker type="pattern"
+          url="public/assets/markers/pattern-marcador-2.patt"
+          id="marker-kanji"
+          marker-anchor="target: #anchor-estacion2"
+          raycaster="objects: .clickable"
+          emitevents="true"
+          cursor="fuse: false; rayOrigin: mouse;">
         </a-marker>
 
         <!-- Cámara simple controlada por AR.js -->
