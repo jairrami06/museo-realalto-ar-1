@@ -69,10 +69,33 @@
 
     <a-scene embedded 
              vr-mode-ui="enabled: false" 
-             arjs="sourceType: webcam; debugUIEnabled: false;" 
+             arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" 
              class="hidden" 
              id="ar-scene">
         
+        <a-assets>
+            <a-asset-item id="model-estacion1" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Duck/glTF-Binary/Duck.glb"></a-asset-item>
+            <a-asset-item id="model-estacion2" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Lantern/glTF-Binary/Lantern.glb"></a-asset-item>
+        </a-assets>
+
+        <a-marker preset="hiro" id="marker-hiro" emitevents="true">
+            <a-entity id="entity-hiro"
+                      gltf-model="#model-estacion1" 
+                      scale="0.6 0.6 0.6" 
+                      position="0 0 0"
+                      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
+        </a-marker>
+
+        <a-marker preset="kanji" id="marker-kanji" emitevents="true">
+            <a-entity id="entity-kanji"
+                      gltf-model="#model-estacion2" 
+                      scale="0.2 0.2 0.2" 
+                      position="0 0 0"
+                      animation="property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear">
+            </a-entity>
+        </a-marker>
+
         <a-entity camera></a-entity>
     </a-scene>
 
