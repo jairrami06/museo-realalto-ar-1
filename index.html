@@ -83,30 +83,20 @@
             <a-asset-item id="model-estacion2" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Lantern/glTF-Binary/Lantern.glb"></a-asset-item>
         </a-assets>
 
-        <a-marker preset="hiro" 
-                  id="marker-hiro" 
-                  raycaster="objects: .clickable" 
-                  emitevents="true" 
-                  cursor="fuse: false; rayOrigin: mouse;">
-            
+        <a-marker preset="hiro" id="marker-hiro" raycaster="objects: .clickable" emitevents="true" cursor="fuse: false; rayOrigin: mouse;">
             <a-entity id="entity-hiro"
                       gltf-model="#model-estacion1" 
-                      scale="0.6 0.6 0.6" 
+                      scale="0.5 0.5 0.5" 
                       position="0 0 0"
                       class="clickable"
                       gesture-handler="rotationEnabled: true; scaleEnabled: false">
             </a-entity>
         </a-marker>
 
-        <a-marker preset="kanji" 
-                  id="marker-kanji" 
-                  raycaster="objects: .clickable" 
-                  emitevents="true" 
-                  cursor="fuse: false; rayOrigin: mouse;">
-            
+        <a-marker preset="kanji" id="marker-kanji" raycaster="objects: .clickable" emitevents="true" cursor="fuse: false; rayOrigin: mouse;">
             <a-entity id="entity-kanji"
                       gltf-model="#model-estacion2" 
-                      scale="0.2 0.2 0.2" 
+                      scale="0.15 0.15 0.15" 
                       position="0 0 0"
                       class="clickable"
                       gesture-handler="rotationEnabled: true; scaleEnabled: false">
