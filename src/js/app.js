@@ -196,8 +196,8 @@ window.exitARExperience = exitARExperience;
 
 const ArqueologiaData = {
     'marker-hiro': {
-        titulo: "Complejo Habitacional Real Alto",
-        instrucciones: "Estación 1: Reconstrucción 3D de las chozas elípticas de la cultura Valdivia (Fase I)."
+        titulo: "Figura de la Cultura Valdivia",
+        instrucciones: "Estación 1: Reconstrucción 3D de figura de la cultura Valdivia."
     },
     'marker-kanji': {
         titulo: "Vasija de Cocción Temprana",
