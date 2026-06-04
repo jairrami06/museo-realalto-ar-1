@@ -1,111 +1,109 @@
 /**
- * app.js - Control de estado de la aplicación WebAR Museo Real Alto
+ * app.js - Control de estado y Anclaje Persistente WebAR Museo Real Alto
  */
 
-// Estado global de la aplicación
 const AppState = {
     isARMode: false,
-    currentMarker: null
+    currentMarker: null,
+    // Registro para saber si un modelo ya fue anclado en el espacio
+    anchoredModels: {
+        'marker-hiro': false,
+        'marker-kanji': false
+    }
 };
 
-/**
- * Inicializa la experiencia de Realidad Aumentada
- * Oculta la UI de la Landing Page y activa el renderizado 3D/Cámara
- */
+const ArqueologiaData = {
+    'marker-hiro': {
+        titulo: "Complejo Habitacional Real Alto",
+        instrucciones: "Modelo anclado. Desliza tu dedo para rotar y examinar la estructura elíptica."
+    },
+    'marker-kanji': {
+        titulo: "Vasija de Cocción Temprana",
+        instrucciones: "Modelo anclado. Explora los detalles cerámicos de la pieza desde cualquier ángulo."
+    }
+};
+
 function startARExperience() {
     AppState.isARMode = true;
-    
-    // UI Elements
     const screenHome = document.getElementById('screen-home');
     const screenARUi = document.getElementById('screen-ar-ui');
     const arScene = document.getElementById('ar-scene');
 
-    // Animación de salida de la Landing Page (Fade out)
     if (screenHome) {
         screenHome.classList.add('opacity-0', 'pointer-events-none');
-        setTimeout(() => {
-            screenHome.classList.add('hidden');
-        }, 300); // Sincronizado con la transición de CSS
+        setTimeout(() => screenHome.classList.add('hidden'), 300);
     }
 
-    // Mostrar capa UI del escáner y la escena AR
     if (screenARUi && arScene) {
         screenARUi.classList.remove('hidden');
         arScene.classList.remove('hidden');
-        
-        // Forzar al motor de A-Frame a redimensionar y capturar la cámara de forma nativa
         arScene.resize();
     }
 }
 
-/**
- * Retorna al usuario al menú principal liberando los recursos de hardware
- */
 function exitARExperience() {
-    // Al trabajar con WebAR nativo (Webcam), la forma más óptima y segura 
-    // de apagar la cámara y limpiar la memoria GPU es recargando la pestaña.
     window.location.reload();
 }
 
-// Exponer las funciones globalmente para los eventos 'onclick' de HTML
-window.startARExperience = startARExperience;
-window.exitARExperience = exitARExperience;
+/**
+ * FUNCIÓN CRÍTICA: Desvincula el objeto del marcador y lo ancla al mundo físico
+ * @param {string} markerId - ID del marcador detectado
+ * @param {string} entityId - ID de la entidad 3D a anclar
+ */
+function anchorEntityToWorld(markerId, entityId) {
+    // Si ya fue anclado previamente, ignoramos para evitar bucles
+    if (AppState.anchoredModels[markerId]) return;
 
-// =========================================================
-// LÓGICA DE DETECCIÓN DE MARCADORES (AR -> UI)
-// =========================================================
+    const markerEl = document.getElementById(markerId);
+    const entityEl = document.getElementById(entityId);
+    const sceneEl = document.getElementById('ar-scene');
+    const statusText = document.getElementById('scan-status');
 
-// Datos temporales de las piezas para la validación de la experiencia
-const ArqueologiaData = {
-    'marker-hiro': {
-        titulo: "Complejo Habitacional Real Alto",
-        instrucciones: "Estación 1: Reconstrucción 3D de las chozas elípticas de la cultura Valdivia (Fase I)."
-    },
-    'marker-kanji': {
-        titulo: "Vasija de Cocción Temprana",
-        instrucciones: "Estación 2: Vestigio cerámico utilizado para la preparación de alimentos e intercambio comunitario."
+    if (markerEl && entityEl && sceneEl) {
+        AppState.anchoredModels[markerId] = true;
+        AppState.currentMarker = markerId;
+
+        // 1. Obtener la posición y rotación del marcador en el espacio del mundo real
+        const worldPosition = new THREE.Vector3();
+        const worldQuaternion = new THREE.Quaternion();
+        const worldScale = new THREE.Vector3();
+        
+        entityEl.object3D.updateMatrixWorld();
+        entityEl.object3D.matrixWorld.decompose(worldPosition, worldQuaternion, worldScale);
+
+        // 2. Mover la entidad 3D directamente a la raíz de la escena (independiente del marcador)
+        sceneEl.appendChild(entityEl);
+
+        // 3. Asignarle las coordenadas calculadas para que no se mueva visualmente al cambiar de padre
+        entityEl.object3D.position.copy(worldPosition);
+        entityEl.object3D.quaternion.copy(worldQuaternion);
+        
+        // Ajuste fino para exteriores: Si el marcador estaba muy lejos, lo fijamos a 2.5 metros frente a la cámara
+        entityEl.setAttribute('position', '0 0 -2.5');
+
+        // 4. Actualizar la interfaz de usuario con éxito persistente
+        const data = ArqueologiaData[markerId];
+        statusText.innerHTML = `<strong class="text-green-400">✓ Estación Fijada:</strong> ${data.titulo}<br><span class="text-[11px] text-amber-400">${data.instrucciones}</span>`;
     }
-};
+}
 
-// Esperar a que el DOM esté completamente cargado para enlazar los listeners
+// Escuchar eventos de inicialización de los marcadores
 document.addEventListener('DOMContentLoaded', () => {
     const markerHiro = document.getElementById('marker-hiro');
     const markerKanji = document.getElementById('marker-kanji');
-    const statusText = document.getElementById('scan-status');
 
-    if (markerHiro && markerKanji && statusText) {
-        
-        // --- Eventos para el Marcador Hiro ---
+    if (markerHiro) {
         markerHiro.addEventListener('markerFound', () => {
-            AppState.currentMarker = 'marker-hiro';
-            const data = ArqueologiaData['marker-hiro'];
-            
-            // Cambiar dinámicamente el texto inferior con éxito
-            statusText.innerHTML = `<strong class="text-green-400">¡Detectado!</strong> ${data.titulo}<br><span class="text-[11px] text-stone-400">${data.instrucciones}</span>`;
+            anchorEntityToWorld('marker-hiro', 'entity-hiro');
         });
+    }
 
-        markerHiro.addEventListener('markerLost', () => {
-            clearScannerStatus(statusText);
-        });
-
-        // --- Eventos para el Marcador Kanji ---
+    if (markerKanji) {
         markerKanji.addEventListener('markerFound', () => {
-            AppState.currentMarker = 'marker-kanji';
-            const data = ArqueologiaData['marker-kanji'];
-            
-            statusText.innerHTML = `<strong class="text-green-400">¡Detectado!</strong> ${data.titulo}<br><span class="text-[11px] text-stone-400">${data.instrucciones}</span>`;
-        });
-
-        markerKanji.addEventListener('markerLost', () => {
-            clearScannerStatus(statusText);
+            anchorEntityToWorld('marker-kanji', 'entity-kanji');
         });
     }
 });
 
-/**
- * Restablece el estado visual del banner informativo al perder el enfoque
- */
-function clearScannerStatus(element) {
-    AppState.currentMarker = null;
-    element.innerHTML = `Apunta la cámara hacia un tótem informativo del museo...`;
-}
+window.startARExperience = startARExperience;
+window.exitARExperience = exitARExperience;
