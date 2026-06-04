@@ -1,10 +1,9 @@
 /**
- * app.js - Solución Definitiva de Persistencia WebAR sin alteración de DOM
+ * app.js - Anclaje Espacial Absoluto por Inyección de Entidades Fijas
  */
 
 const AppState = {
     isARMode: false,
-    currentMarker: null,
     anchoredModels: {
         'marker-hiro': false,
         'marker-kanji': false
@@ -14,11 +13,15 @@ const AppState = {
 const ArqueologiaData = {
     'marker-hiro': {
         titulo: "Complejo Habitacional Real Alto",
-        instrucciones: "Modelo fijado de forma persistente. Desliza tu dedo en la pantalla para rotarlo."
+        instrucciones: "Modelo anclado en el espacio real. Gira tu teléfono, el objeto se quedará fijo en este punto del entorno.",
+        modelSrc: "#model-estacion1",
+        scale: "0.5 0.5 0.5"
     },
     'marker-kanji': {
         titulo: "Vasija de Cocción Temprana",
-        instrucciones: "Modelo fijado de forma persistente. Explora sus detalles cerámicos desde cualquier ángulo."
+        instrucciones: "Modelo anclado en el espacio real. Camina o gira el dispositivo; la pieza mantendrá su posición fija.",
+        modelSrc: "#model-estacion2",
+        scale: "0.15 0.15 0.15"
     }
 };
 
@@ -45,45 +48,63 @@ function exitARExperience() {
 }
 
 /**
- * Forzar la permanencia del objeto interfiriendo con el borrado automático de AR.js
+ * Instancia el modelo 3D directamente en el espacio absoluto del mundo,
+ * desvinculándolo por completo del sistema de rastreo por marcadores.
  */
+function anchorModelPermanently(markerId) {
+    if (AppState.anchoredModels[markerId]) return;
+    AppState.anchoredModels[markerId] = true;
+
+    const sceneEl = document.getElementById('ar-scene');
+    const statusText = document.getElementById('scan-status');
+    const data = ArqueologiaData[markerId];
+
+    if (sceneEl && data) {
+        // 1. Crear una nueva entidad A-Frame desde cero
+        const newEntity = document.createElement('a-entity');
+        
+        // 2. Configurar las propiedades del objeto arqueológico
+        newEntity.setAttribute('gltf-model', data.modelSrc);
+        newEntity.setAttribute('scale', data.scale);
+        newEntity.setAttribute('class', 'clickable');
+        
+        // Asignar el componente de gestos para que responda a la rotación con el dedo
+        newEntity.setAttribute('gesture-handler', 'rotationEnabled: true; scaleEnabled: false');
+
+        // 3. ANCLAJE ESPACIAL ABSOLUTO:
+        // Colocamos el objeto en la coordenada global (0, 0, -2) relativa al punto de inicio del usuario.
+        // Esto hace que el objeto se quede clavado en ese punto del "aire", sin importar a dónde mires después.
+        newEntity.setAttribute('position', '0 0 -2');
+        newEntity.setAttribute('rotation', '0 0 0');
+
+        // 4. Inyectar la entidad directamente en la escena, fuera de cualquier marcador
+        sceneEl.appendChild(newEntity);
+
+        // 5. Ocultar visualmente el marcador original para evitar renders dobles
+        const originalMarker = document.getElementById(markerId);
+        if (originalMarker) {
+            originalMarker.setAttribute('visible', 'false');
+        }
+
+        // 6. Actualizar la interfaz de usuario de forma permanente
+        statusText.innerHTML = `<strong class="text-green-400">✓ Objeto Fijado al Entorno:</strong> ${data.titulo}<br><span class="text-[11px] text-amber-400">${data.instrucciones}</span>`;
+    }
+}
+
+// Escuchar los disparadores de los marcadores físicos
 document.addEventListener('DOMContentLoaded', () => {
     const markerHiro = document.getElementById('marker-hiro');
     const markerKanji = document.getElementById('marker-kanji');
-    const statusText = document.getElementById('scan-status');
 
-    // Modificación directa sobre el comportamiento de AR.js
     if (markerHiro) {
         markerHiro.addEventListener('markerFound', () => {
-            if (AppState.anchoredModels['marker-hiro']) return;
-            AppState.anchoredModels['marker-hiro'] = true;
-            
-            const entity = document.getElementById('entity-hiro');
-            
-            // Hack de persistencia: Forzamos al objeto a ser visible permanentemente
-            entity.setAttribute('visible', 'true');
-            
-            // Sobrescribimos la función interna de AR.js para que no pueda ocultarlo al perder el marcador
-            markerHiro.id = "marker-hiro-fijado"; 
-            
-            const data = ArqueologiaData['marker-hiro'];
-            statusText.innerHTML = `<strong class="text-green-400">✓ Estación Fijada:</strong> ${data.titulo}<br><span class="text-[11px] text-amber-400">${data.instrucciones}</span>`;
+            anchorModelPermanently('marker-hiro');
         });
     }
 
     if (markerKanji) {
         markerKanji.addEventListener('markerFound', () => {
-            if (AppState.anchoredModels['marker-kanji']) return;
-            AppState.anchoredModels['marker-kanji'] = true;
-            
-            const entity = document.getElementById('entity-kanji');
-            entity.setAttribute('visible', 'true');
-            
-            // Bloqueamos el comportamiento de ocultación cambiando el ID de rastreo
-            markerKanji.id = "marker-kanji-fijado";
-            
-            const data = ArqueologiaData['marker-kanji'];
-            statusText.innerHTML = `<strong class="text-green-400">✓ Estación Fijada:</strong> ${data.titulo}<br><span class="text-[11px] text-amber-400">${data.instrucciones}</span>`;
+            anchorModelPermanently('marker-kanji');
         });
     }
 });
