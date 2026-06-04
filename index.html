@@ -8,6 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
+    <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
     
     <style>
         body { margin: 0; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
@@ -70,6 +74,7 @@
     <a-scene embedded 
              vr-mode-ui="enabled: false" 
              arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" 
+             gesture-detector
              class="hidden" 
              id="ar-scene">
         
@@ -78,21 +83,33 @@
             <a-asset-item id="model-estacion2" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Lantern/glTF-Binary/Lantern.glb"></a-asset-item>
         </a-assets>
 
-        <a-marker preset="hiro" id="marker-hiro" emitevents="true">
+        <a-marker preset="hiro" 
+                  id="marker-hiro" 
+                  raycaster="objects: .clickable" 
+                  emitevents="true" 
+                  cursor="fuse: false; rayOrigin: mouse;">
+            
             <a-entity id="entity-hiro"
                       gltf-model="#model-estacion1" 
                       scale="0.6 0.6 0.6" 
                       position="0 0 0"
-                      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+                      class="clickable"
+                      gesture-handler="rotationEnabled: true; scaleEnabled: false">
             </a-entity>
         </a-marker>
 
-        <a-marker preset="kanji" id="marker-kanji" emitevents="true">
+        <a-marker preset="kanji" 
+                  id="marker-kanji" 
+                  raycaster="objects: .clickable" 
+                  emitevents="true" 
+                  cursor="fuse: false; rayOrigin: mouse;">
+            
             <a-entity id="entity-kanji"
                       gltf-model="#model-estacion2" 
                       scale="0.2 0.2 0.2" 
                       position="0 0 0"
-                      animation="property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear">
+                      class="clickable"
+                      gesture-handler="rotationEnabled: true; scaleEnabled: false">
             </a-entity>
         </a-marker>
 
