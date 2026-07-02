@@ -3,47 +3,38 @@ Proyecto Comunitarias: Real Alto
 
 Descripción
 -----------
-Pequeña aplicación web estática (HTML/CSS/JS) preparada para desplegarse con GitHub Pages.
+Aplicación WebAR estática para el Museo Arqueológico Real Alto. El proyecto usa A-Frame + AR.js, soporte PWA/offline y despliegue en Netlify.
 
 Estructura principal
 --------------------
 - `index.html` - página principal
-- `public/` - activos (marcadores, modelos, etc.)
-- `src/` - código fuente (JS/CSS)
+- `src/js/app.js` - lógica de UI, idioma, AR y service worker
+- `i18n.json` - textos localizables
+- `service-worker.js` - caché offline
+- `manifest.json` - configuración PWA
+- `public/` - activos (marcadores, modelos, imágenes)
+- `netlify.toml` - configuración de publicación en Netlify
 
-Despliegue a GitHub Pages
--------------------------
-El despliegue se realiza mediante GitHub Actions. El workflow responsable es `.github/workflows/deploy.yml` y, por defecto, publica la versión generada desde la rama `main`.
+Despliegue actual
+-----------------
+El sitio se publica desde la raíz del repositorio en Netlify. En el dashboard de Netlify usa:
 
-Entorno protegido (`github-pages`)
----------------------------------
-Si el entorno de despliegue `github-pages` tiene protección por ramas o revisores requeridos, un push desde otra rama (por ejemplo `custom`) puede ser rechazado. Para permitir que `custom` despliegue, hay dos opciones:
+- Build command: vacío
+- Publish directory: `.`
 
-1) Permitir la rama en el entorno (recomendado si quieres que `custom` pueda publicar):
-   - En GitHub: `Settings` → `Environments` → `github-pages` → `Deployment branches and tags` → seleccionar `custom` o quitar la restricción.
-   - Si existen `Required reviewers`, un despliegue necesitará aprobación desde la pestaña `Actions`.
-
-2) Mantener la restricción y solo desplegar desde `main`:
-   - Edita `.github/workflows/deploy.yml` y asegúrate de que en el trigger solo esté `main`.
-
-Cambiar el workflow para incluir `custom`
-----------------------------------------
-Si prefieres que la acción de CI vuelva a aceptar pushes desde `custom`, edita el bloque `on.push.branches` en `.github/workflows/deploy.yml` para añadir `custom`:
-
-```yaml
-on:
-  push:
-    branches:
-      - main
-      - custom
-```
-
-Luego guarda y haz push; ten en cuenta que, si el entorno `github-pages` sigue protegido para `custom`, el despliegue será rechazado hasta ajustar la configuración de entorno.
-
-Probar localmente
-------------------
+Prueba local
+------------
 Una forma rápida de servir los archivos estáticos en tu máquina:
 
-`python -m http.server 8000`
+```bash
+python -m http.server 8000
+```
 
-o usando la extensión Live Server en VS Code.
+También puedes usar Live Server en VS Code.
+
+Siguientes pasos técnicos
+-------------------------
+- Subir modelos finales optimizados a Cloudflare R2.
+- Reemplazar las rutas locales por las URLs públicas de R2.
+- Completar el catálogo i18n si se agregan más idiomas.
+- Ajustar la caché del service worker cuando cambien los assets.
