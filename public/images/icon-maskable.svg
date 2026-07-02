@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Museo Real Alto icon maskable">
+  <rect width="512" height="512" rx="128" fill="#1c1917"/>
+  <circle cx="256" cy="180" r="88" fill="#f59e0b" opacity="0.22"/>
+  <path d="M112 326h288l-28-90H140l-28 90zm66-104h156l-16-46H194l-16 46zm-2 52h160v30H176z" fill="#fef3c7"/>
+  <path d="M170 330h172v36H170z" fill="#f59e0b"/>
+</svg>

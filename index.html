@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <title>WebAR - Museo Real Alto</title>
+    <meta name="theme-color" content="#1c1917">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/public/images/icon.svg" type="image/svg+xml">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
+    <script src="config.js"></script>
     <script src="src/js/app.js"></script>
     
     <style>
@@ -22,26 +26,37 @@
     <div id="screen-home" class="ui-layer fixed inset-0 flex flex-col justify-between p-6 transition-opacity duration-300 bg-cover bg-center" 
             style="background-image: linear-gradient(to bottom, rgba(28,25,23,0.4), rgba(28,25,23,0.95)), url('public/images/home.webp');">
         
-        <div class="text-center mt-12">
-            <span class="text-amber-500 font-bold tracking-widest text-xs uppercase px-3 py-1 bg-amber-500/10 rounded-full border border-amber-500/20">
+        <div class="flex items-start justify-between gap-4 mt-1">
+            <div class="text-[10px] uppercase tracking-[0.35em] text-stone-400 font-semibold">
+                Museo Arqueologico Real Alto
+            </div>
+            <div class="flex gap-2 text-[11px] font-semibold">
+                <button type="button" class="lang-switch bg-stone-950/70 border border-stone-800 rounded-full px-3 py-1.5 text-amber-400" data-lang-choice="es">ES</button>
+                <button type="button" class="lang-switch bg-stone-950/40 border border-stone-800 rounded-full px-3 py-1.5 text-stone-300" data-lang-choice="en">EN</button>
+                <button type="button" class="lang-switch bg-stone-950/40 border border-stone-800 rounded-full px-3 py-1.5 text-stone-300" data-lang-choice="fr">FR</button>
+            </div>
+        </div>
+
+        <div class="text-center mt-8">
+            <span class="text-amber-500 font-bold tracking-widest text-xs uppercase px-3 py-1 bg-amber-500/10 rounded-full border border-amber-500/20" data-i18n="ui.badge">
                 Complejo Cultural
             </span>
-            <h1 class="text-white text-4xl font-extrabold mt-3 tracking-tight">Museo Real Alto</h1>
-            <p class="text-stone-400 text-sm mt-1">Santa Elena · Ecuador</p>
+            <h1 class="text-white text-4xl font-extrabold mt-3 tracking-tight" data-i18n="ui.title">Museo Real Alto</h1>
+            <p class="text-stone-400 text-sm mt-1" data-i18n="ui.location">Santa Elena · Ecuador</p>
         </div>
 
         <div class="bg-stone-900/80 backdrop-blur-md rounded-2xl p-6 mb-6 border border-stone-800 text-center shadow-xl">
-            <h2 class="text-amber-400 font-semibold mb-2 text-lg">Guía Interactiva en Realidad Aumentada</h2>
-            <p class="text-stone-300 text-xs leading-relaxed mb-6">
+            <h2 class="text-amber-400 font-semibold mb-2 text-lg" data-i18n="ui.subtitle">Guía Interactiva en Realidad Aumentada</h2>
+            <p class="text-stone-300 text-xs leading-relaxed mb-6" data-i18n="ui.description">
                 Descubre réplicas arqueológicas tridimensionales e historia interactiva directamente en el área abierta del museo.
             </p>
             
-            <button onclick="startARExperience()" 
+                <button id="start-ar-button" onclick="startARExperience()"
                     class="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-stone-950 font-bold py-3.5 px-6 rounded-xl transition duration-200 shadow-lg shadow-amber-500/20 text-sm tracking-wide">
-                Iniciar Recorrido WebAR
+                <span data-i18n="ui.start">Iniciar Recorrido WebAR</span>
             </button>
             
-            <p class="text-[10px] text-stone-500 mt-3 flex items-center justify-center gap-1">
+            <p class="text-[10px] text-stone-500 mt-3 flex items-center justify-center gap-1" data-i18n="ui.warning">
                 ⚠️ Requiere permisos de cámara y un entorno bien iluminado
             </p>
         </div>
@@ -49,7 +64,7 @@
 
     <div id="screen-ar-ui" class="ui-layer hidden fixed inset-0 pointer-events-none flex flex-col justify-between p-4">
         <div class="flex justify-between items-center pointer-events-auto w-full">
-            <button onclick="exitARExperience()" class="bg-stone-950/80 backdrop-blur-md text-stone-200 p-2.5 rounded-full border border-stone-800 active:scale-90 transition">
+            <button onclick="exitARExperience()" class="bg-stone-950/80 backdrop-blur-md text-stone-200 p-2.5 rounded-full border border-stone-800 active:scale-90 transition" aria-label="Volver al inicio" data-i18n-aria-label="ui.back">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -61,13 +76,16 @@
                 <span id="gyro-debug" class="bg-stone-950/80 backdrop-blur-md text-rose-500 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-stone-800">
                     Giroscopio: Sin Señal ⚠️
                 </span>
+                <span id="network-status" class="bg-stone-950/80 backdrop-blur-md text-emerald-400 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-stone-800">
+                    En linea
+                </span>
             </div>
             <div class="w-10"></div> </div>
 
         <div class="w-full bg-stone-950/90 text-white p-4 rounded-xl pointer-events-auto border border-stone-800 shadow-2xl mb-4 max-w-md mx-auto">
             <div class="flex items-center gap-3">
                 <div class="w-2 h-2 bg-amber-500 rounded-full animate-ping"></div>
-                <p id="scan-status" class="text-xs text-stone-300 font-medium tracking-wide">
+                <p id="scan-status" class="text-xs text-stone-300 font-medium tracking-wide" data-i18n="ui.scanPrompt">
                     Apunta la cámara hacia un tótem informativo del museo...
                 </p>
             </div>
@@ -82,8 +100,8 @@
              id="ar-scene">
         
         <a-assets>
-            <a-asset-item id="model-estacion1" src="./public/assets/models/valdivia.glb"></a-asset-item>
-            <a-asset-item id="model-estacion2" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Lantern/glTF-Binary/Lantern.glb"></a-asset-item>
+            <a-asset-item id="model-estacion1"></a-asset-item>
+            <a-asset-item id="model-estacion2"></a-asset-item>
         </a-assets>
 
         <!-- Contenedor con rotación de giroscopio para mantener los modelos fijos en el espacio físico -->

@@ -2,11 +2,225 @@
  * app.js - Control de estado de la aplicación WebAR Museo Real Alto
  */
 
+const DEFAULT_I18N = {
+    es: {
+        ui: {
+            badge: 'Complejo Cultural',
+            title: 'Museo Real Alto',
+            location: 'Santa Elena · Ecuador',
+            subtitle: 'Guía Interactiva en Realidad Aumentada',
+            description: 'Descubre réplicas arqueológicas tridimensionales e historia interactiva directamente en el área abierta del museo.',
+            start: 'Iniciar Recorrido WebAR',
+            warning: 'Requiere permisos de cámara y un entorno bien iluminado',
+            back: 'Volver al inicio',
+            scanPrompt: 'Apunta la cámara hacia un tótem informativo del museo...',
+            online: 'En línea',
+            offline: 'Modo offline activo',
+            detected: '¡Detectado!'
+        },
+        markers: {
+            'marker-hiro': {
+                title: 'Figura de la Cultura Valdivia',
+                description: 'Estación 1: Reconstrucción 3D de figura de la cultura Valdivia.',
+                anchorLost: 'Anclado en entorno',
+                hint: 'El modelo permanece fijo. Apunta a otro tótem para cambiar.'
+            },
+            'marker-kanji': {
+                title: 'Vasija de Cocción Temprana',
+                description: 'Estación 2: Vestigio cerámico utilizado para la preparación de alimentos e intercambio comunitario.',
+                anchorLost: 'Anclado en entorno',
+                hint: 'El modelo permanece fijo. Apunta a otro tótem para cambiar.'
+            }
+        }
+    },
+    en: {
+        ui: {
+            badge: 'Cultural Center',
+            title: 'Real Alto Museum',
+            location: 'Santa Elena · Ecuador',
+            subtitle: 'Interactive Augmented Reality Guide',
+            description: 'Discover three-dimensional archaeological replicas and interactive history directly in the museum open area.',
+            start: 'Start WebAR Tour',
+            warning: 'Camera permission and a well-lit environment are required',
+            back: 'Back to home',
+            scanPrompt: 'Point the camera toward an information totem in the museum...',
+            online: 'Online',
+            offline: 'Offline mode active',
+            detected: 'Detected!'
+        },
+        markers: {
+            'marker-hiro': {
+                title: 'Valdivia Culture Figure',
+                description: 'Station 1: 3D reconstruction of a Valdivia culture figure.',
+                anchorLost: 'Anchored in environment',
+                hint: 'The model stays fixed. Point to another totem to switch.'
+            },
+            'marker-kanji': {
+                title: 'Early Cooking Vessel',
+                description: 'Station 2: Ceramic vestige used for food preparation and community exchange.',
+                anchorLost: 'Anchored in environment',
+                hint: 'The model stays fixed. Point to another totem to switch.'
+            }
+        }
+    },
+    fr: {
+        ui: {
+            badge: 'Centre culturel',
+            title: 'Musee Real Alto',
+            location: 'Santa Elena · Ecuador',
+            subtitle: 'Guide interactif de realite augmentee',
+            description: 'Decouvrez des replicas archeologiques tridimensionnels et une histoire interactive directement dans la zone ouverte du musee.',
+            start: 'Lancer la visite WebAR',
+            warning: 'Autorisation de la camera et environnement bien eclaire requis',
+            back: 'Retour a l accueil',
+            scanPrompt: 'Pointez la camera vers un totem d information du musee...',
+            online: 'En ligne',
+            offline: 'Mode hors ligne actif',
+            detected: 'Detecte !'
+        },
+        markers: {
+            'marker-hiro': {
+                title: 'Figure de la culture Valdivia',
+                description: 'Station 1 : Reconstruction 3D d une figure de la culture Valdivia.',
+                anchorLost: 'Ancree dans l environnement',
+                hint: 'Le modele reste fixe. Visez un autre totem pour changer.'
+            },
+            'marker-kanji': {
+                title: 'Vase de cuisson ancien',
+                description: 'Station 2 : Vestige ceramique utilise pour la preparation des aliments et les echanges communautaires.',
+                anchorLost: 'Ancree dans l environnement',
+                hint: 'Le modele reste fixe. Visez un autre totem pour changer.'
+            }
+        }
+    }
+};
+
 // Estado global de la aplicación
 const AppState = {
     isARMode: false,
-    currentMarker: null
+    currentMarker: null,
+    lang: 'es',
+    i18n: DEFAULT_I18N
 };
+
+const SiteConfig = window.APP_CONFIG || {};
+const R2_PUBLIC_URL = typeof SiteConfig.R2_PUBLIC_URL === 'string'
+    ? SiteConfig.R2_PUBLIC_URL.replace(/\/$/, '')
+    : '';
+const MODEL_URLS = SiteConfig.MODEL_URLS || {};
+
+function resolveModelUrl(assetId) {
+    const remoteFileName = MODEL_URLS[assetId];
+
+    if (R2_PUBLIC_URL && remoteFileName) {
+        return `${R2_PUBLIC_URL}/${remoteFileName}`;
+    }
+
+    throw new Error(`Falta la URL remota para el asset ${assetId}`);
+}
+
+function getPreferredLanguage() {
+    const savedLang = localStorage.getItem('lang');
+    if (savedLang && AppState.i18n[savedLang]) {
+        return savedLang;
+    }
+
+    const browserLang = (navigator.language || navigator.userLanguage || 'es').slice(0, 2).toLowerCase();
+    return AppState.i18n[browserLang] ? browserLang : 'es';
+}
+
+function getTranslationBundle(lang) {
+    return AppState.i18n[lang] || AppState.i18n.es;
+}
+
+function getNestedValue(source, path, fallback = '') {
+    return path.split('.').reduce((value, key) => {
+        if (value && Object.prototype.hasOwnProperty.call(value, key)) {
+            return value[key];
+        }
+        return undefined;
+    }, source) ?? fallback;
+}
+
+function applyTranslations(lang) {
+    const bundle = getTranslationBundle(lang);
+
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll('[data-i18n]').forEach((element) => {
+        const value = getNestedValue(bundle, element.dataset.i18n, element.textContent.trim());
+        element.textContent = value;
+    });
+
+    document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
+        const value = getNestedValue(bundle, element.dataset.i18nAriaLabel, element.getAttribute('aria-label') || '');
+        element.setAttribute('aria-label', value);
+    });
+
+    const networkStatus = document.getElementById('network-status');
+    if (networkStatus) {
+        networkStatus.textContent = navigator.onLine ? bundle.ui.online : bundle.ui.offline;
+        networkStatus.classList.toggle('text-emerald-400', navigator.onLine);
+        networkStatus.classList.toggle('text-amber-400', !navigator.onLine);
+    }
+}
+
+async function loadI18n() {
+    try {
+        const response = await fetch('/i18n.json', { cache: 'no-cache' });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const remoteI18n = await response.json();
+        AppState.i18n = { ...DEFAULT_I18N, ...remoteI18n };
+    } catch (error) {
+        console.warn('No se pudo cargar i18n.json, usando textos locales.', error);
+        AppState.i18n = DEFAULT_I18N;
+    }
+}
+
+function setLanguage(lang) {
+    if (!AppState.i18n[lang]) {
+        return;
+    }
+
+    AppState.lang = lang;
+    localStorage.setItem('lang', lang);
+    applyTranslations(lang);
+
+    document.querySelectorAll('[data-lang-choice]').forEach((button) => {
+        const isSelected = button.dataset.langChoice === lang;
+        button.classList.toggle('text-amber-400', isSelected);
+        button.classList.toggle('text-stone-300', !isSelected);
+        button.classList.toggle('bg-stone-950/70', isSelected);
+        button.classList.toggle('bg-stone-950/40', !isSelected);
+    });
+}
+
+function bindLanguageSwitcher() {
+    document.querySelectorAll('[data-lang-choice]').forEach((button) => {
+        button.addEventListener('click', () => setLanguage(button.dataset.langChoice));
+    });
+}
+
+function bindNetworkEvents() {
+    const updateStatus = () => applyTranslations(AppState.lang);
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+}
+
+async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) {
+        return;
+    }
+
+    try {
+        await navigator.serviceWorker.register('/service-worker.js');
+    } catch (error) {
+        console.warn('No se pudo registrar el service worker.', error);
+    }
+}
 
 // Componente para leer el giroscopio físico y rotar un contenedor en sentido inverso
 AFRAME.registerComponent('gyro-rotation', {
@@ -206,6 +420,26 @@ const ArqueologiaData = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadI18n().then(() => {
+        AppState.lang = getPreferredLanguage();
+        setLanguage(AppState.lang);
+    });
+
+    const modelEstacion1 = document.getElementById('model-estacion1');
+    const modelEstacion2 = document.getElementById('model-estacion2');
+
+    if (modelEstacion1) {
+        modelEstacion1.setAttribute('src', resolveModelUrl('model-estacion1'));
+    }
+
+    if (modelEstacion2) {
+        modelEstacion2.setAttribute('src', resolveModelUrl('model-estacion2'));
+    }
+
+    bindLanguageSwitcher();
+    bindNetworkEvents();
+    registerServiceWorker();
+
     const markerHiro = document.getElementById('marker-hiro');
     const markerKanji = document.getElementById('marker-kanji');
     const statusText = document.getElementById('scan-status');
@@ -214,27 +448,29 @@ document.addEventListener('DOMContentLoaded', () => {
         
         markerHiro.addEventListener('markerFound', () => {
             AppState.currentMarker = 'marker-hiro';
-            const data = ArqueologiaData['marker-hiro'];
-            statusText.innerHTML = `<strong class="text-green-400">¡Detectado!</strong> ${data.titulo}<br><span class="text-[11px] text-stone-400">${data.instrucciones}</span>`;
+            const bundle = getTranslationBundle(AppState.lang);
+            const data = bundle.markers['marker-hiro'];
+            statusText.innerHTML = `<strong class="text-green-400">${bundle.ui.detected}</strong> ${data.title}<br><span class="text-[11px] text-stone-400">${data.description}</span>`;
         });
 
         markerHiro.addEventListener('markerLost', () => {
             if (AppState.currentMarker === 'marker-hiro') {
-                const data = ArqueologiaData['marker-hiro'];
-                statusText.innerHTML = `<strong class="text-amber-400">Anclado en entorno</strong> · ${data.titulo}<br><span class="text-[11px] text-stone-300">El modelo permanece fijo. Apunta a otro tótem para cambiar.</span>`;
+                const data = getTranslationBundle(AppState.lang).markers['marker-hiro'];
+                statusText.innerHTML = `<strong class="text-amber-400">${data.anchorLost}</strong> · ${data.title}<br><span class="text-[11px] text-stone-300">${data.hint}</span>`;
             }
         });
 
         markerKanji.addEventListener('markerFound', () => {
             AppState.currentMarker = 'marker-kanji';
-            const data = ArqueologiaData['marker-kanji'];
-            statusText.innerHTML = `<strong class="text-green-400">¡Detectado!</strong> ${data.titulo}<br><span class="text-[11px] text-stone-400">${data.instrucciones}</span>`;
+            const bundle = getTranslationBundle(AppState.lang);
+            const data = bundle.markers['marker-kanji'];
+            statusText.innerHTML = `<strong class="text-green-400">${bundle.ui.detected}</strong> ${data.title}<br><span class="text-[11px] text-stone-400">${data.description}</span>`;
         });
 
         markerKanji.addEventListener('markerLost', () => {
             if (AppState.currentMarker === 'marker-kanji') {
-                const data = ArqueologiaData['marker-kanji'];
-                statusText.innerHTML = `<strong class="text-amber-400">Anclado en entorno</strong> · ${data.titulo}<br><span class="text-[11px] text-stone-300">El modelo permanece fijo. Apunta a otro tótem para cambiar.</span>`;
+                const data = getTranslationBundle(AppState.lang).markers['marker-kanji'];
+                statusText.innerHTML = `<strong class="text-amber-400">${data.anchorLost}</strong> · ${data.title}<br><span class="text-[11px] text-stone-300">${data.hint}</span>`;
             }
         });
     }

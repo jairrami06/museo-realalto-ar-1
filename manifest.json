@@ -1,0 +1,25 @@
+{
+  "name": "Museo Real Alto WebAR",
+  "short_name": "Real Alto AR",
+  "description": "Guia WebAR del Museo Arqueologico Real Alto",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1c1917",
+  "theme_color": "#1c1917",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/public/images/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/public/images/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

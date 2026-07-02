@@ -1,0 +1,92 @@
+{
+  "es": {
+    "ui": {
+      "badge": "Complejo Cultural",
+      "title": "Museo Real Alto",
+      "location": "Santa Elena · Ecuador",
+      "subtitle": "Guía Interactiva en Realidad Aumentada",
+      "description": "Descubre réplicas arqueológicas tridimensionales e historia interactiva directamente en el área abierta del museo.",
+      "start": "Iniciar Recorrido WebAR",
+      "warning": "Requiere permisos de cámara y un entorno bien iluminado",
+      "back": "Volver al inicio",
+      "scanPrompt": "Apunta la cámara hacia un tótem informativo del museo...",
+      "online": "En línea",
+      "offline": "Modo offline activo",
+      "detected": "¡Detectado!"
+    },
+    "markers": {
+      "marker-hiro": {
+        "title": "Figura de la Cultura Valdivia",
+        "description": "Estación 1: Reconstrucción 3D de figura de la cultura Valdivia.",
+        "anchorLost": "Anclado en entorno",
+        "hint": "El modelo permanece fijo. Apunta a otro tótem para cambiar."
+      },
+      "marker-kanji": {
+        "title": "Vasija de Cocción Temprana",
+        "description": "Estación 2: Vestigio cerámico utilizado para la preparación de alimentos e intercambio comunitario.",
+        "anchorLost": "Anclado en entorno",
+        "hint": "El modelo permanece fijo. Apunta a otro tótem para cambiar."
+      }
+    }
+  },
+  "en": {
+    "ui": {
+      "badge": "Cultural Center",
+      "title": "Real Alto Museum",
+      "location": "Santa Elena · Ecuador",
+      "subtitle": "Interactive Augmented Reality Guide",
+      "description": "Discover three-dimensional archaeological replicas and interactive history directly in the museum open area.",
+      "start": "Start WebAR Tour",
+      "warning": "Camera permission and a well-lit environment are required",
+      "back": "Back to home",
+      "scanPrompt": "Point the camera toward an information totem in the museum...",
+      "online": "Online",
+      "offline": "Offline mode active",
+      "detected": "Detected!"
+    },
+    "markers": {
+      "marker-hiro": {
+        "title": "Valdivia Culture Figure",
+        "description": "Station 1: 3D reconstruction of a Valdivia culture figure.",
+        "anchorLost": "Anchored in environment",
+        "hint": "The model stays fixed. Point to another totem to switch."
+      },
+      "marker-kanji": {
+        "title": "Early Cooking Vessel",
+        "description": "Station 2: Ceramic vestige used for food preparation and community exchange.",
+        "anchorLost": "Anchored in environment",
+        "hint": "The model stays fixed. Point to another totem to switch."
+      }
+    }
+  },
+  "fr": {
+    "ui": {
+      "badge": "Centre culturel",
+      "title": "Musee Real Alto",
+      "location": "Santa Elena · Ecuador",
+      "subtitle": "Guide interactif de realite augmentee",
+      "description": "Decouvrez des replicas archeologiques tridimensionnels et une histoire interactive directement dans la zone ouverte du musee.",
+      "start": "Lancer la visite WebAR",
+      "warning": "Autorisation de la camera et environnement bien eclaire requis",
+      "back": "Retour a l accueil",
+      "scanPrompt": "Pointez la camera vers un totem d information du musee...",
+      "online": "En ligne",
+      "offline": "Mode hors ligne actif",
+      "detected": "Detecte !"
+    },
+    "markers": {
+      "marker-hiro": {
+        "title": "Figure de la culture Valdivia",
+        "description": "Station 1 : Reconstruction 3D d une figure de la culture Valdivia.",
+        "anchorLost": "Ancree dans l environnement",
+        "hint": "Le modele reste fixe. Visez un autre totem pour changer."
+      },
+      "marker-kanji": {
+        "title": "Vase de cuisson ancien",
+        "description": "Station 2 : Vestige ceramique utilise pour la preparation des aliments et les echanges communautaires.",
+        "anchorLost": "Ancree dans l environnement",
+        "hint": "Le modele reste fixe. Visez un autre totem pour changer."
+      }
+    }
+  }
+}
