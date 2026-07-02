@@ -222,6 +222,21 @@ async function registerServiceWorker() {
     }
 }
 
+async function requestCameraAccess() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('getUserMedia no está disponible en este navegador');
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+            facingMode: { ideal: 'environment' }
+        },
+        audio: false
+    });
+
+    stream.getTracks().forEach((track) => track.stop());
+}
+
 // Componente para leer el giroscopio físico y rotar un contenedor en sentido inverso
 AFRAME.registerComponent('gyro-rotation', {
     init: function () {
@@ -353,7 +368,7 @@ AFRAME.registerComponent('marker-anchor', {
  * Inicializa la experiencia de Realidad Aumentada
  * Oculta la UI de la Landing Page y activa el renderizado 3D/Cámara
  */
-function startARExperience() {
+async function startARExperience() {
     AppState.isARMode = true;
     
     // Alerta de depuración para contextos locales no seguros (HTTP por IP local)
@@ -368,6 +383,14 @@ function startARExperience() {
                 console.log("Permiso de orientación:", permissionState);
             })
             .catch(console.error);
+    }
+
+    try {
+        await requestCameraAccess();
+    } catch (error) {
+        console.warn('No se pudo obtener acceso a la cámara antes de iniciar AR.', error);
+        alert('No fue posible activar la cámara. Revisa el permiso del navegador y vuelve a intentar.');
+        return;
     }
     
     // UI Elements
@@ -387,6 +410,7 @@ function startARExperience() {
     if (screenARUi && arScene) {
         screenARUi.classList.remove('hidden');
         arScene.classList.remove('hidden');
+        arScene.style.display = 'block';
         
         // Forzar al motor de A-Frame a redimensionar y capturar la cámara de forma nativa
         arScene.resize();

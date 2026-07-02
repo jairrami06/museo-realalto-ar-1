@@ -17,7 +17,21 @@
     
     <style>
         body { margin: 0; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
-        .a-canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+        a-scene#ar-scene {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+        .a-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1;
+        }
         .ui-layer { z-index: 10; position: relative; }
     </style>
 </head>
