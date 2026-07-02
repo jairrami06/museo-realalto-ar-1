@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Museo Real Alto">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#1c1917"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <circle cx="256" cy="184" r="92" fill="#fef3c7" opacity="0.18"/>
+  <path d="M120 330h272l-32-80H152l-32 80zm54-94h164l-18-48H192l-18 48zm-6 42h176v30H168z" fill="#f5f5f4"/>
+  <path d="M174 330h164v34H174z" fill="#f59e0b"/>
+</svg>
