@@ -9,8 +9,6 @@ const APP_SHELL = [
     '/public/images/home.webp',
     '/public/images/icon.svg',
     '/public/images/icon-maskable.svg',
-    '/public/assets/models/valdivia.glb',
-    '/public/assets/models/estatua2.glb',
     '/public/assets/markers/pattern-marcador-1.patt',
     '/public/assets/markers/pattern-marcador-2.patt'
 ];

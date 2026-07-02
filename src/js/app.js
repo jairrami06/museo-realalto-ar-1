@@ -109,14 +109,14 @@ const R2_PUBLIC_URL = typeof SiteConfig.R2_PUBLIC_URL === 'string'
     : '';
 const MODEL_URLS = SiteConfig.MODEL_URLS || {};
 
-function resolveModelUrl(assetId, localPath) {
+function resolveModelUrl(assetId) {
     const remoteFileName = MODEL_URLS[assetId];
 
     if (R2_PUBLIC_URL && remoteFileName) {
         return `${R2_PUBLIC_URL}/${remoteFileName}`;
     }
 
-    return localPath;
+    throw new Error(`Falta la URL remota para el asset ${assetId}`);
 }
 
 function getPreferredLanguage() {
@@ -429,11 +429,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelEstacion2 = document.getElementById('model-estacion2');
 
     if (modelEstacion1) {
-        modelEstacion1.setAttribute('src', resolveModelUrl('model-estacion1', './public/assets/models/valdivia.glb'));
+        modelEstacion1.setAttribute('src', resolveModelUrl('model-estacion1'));
     }
 
     if (modelEstacion2) {
-        modelEstacion2.setAttribute('src', resolveModelUrl('model-estacion2', './public/assets/models/estatua2.glb'));
+        modelEstacion2.setAttribute('src', resolveModelUrl('model-estacion2'));
     }
 
     bindLanguageSwitcher();
