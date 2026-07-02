@@ -119,6 +119,17 @@ function resolveModelUrl(assetId) {
     throw new Error(`Falta la URL remota para el asset ${assetId}`);
 }
 
+function setModelStatus(message, isError = false) {
+    const statusText = document.getElementById('scan-status');
+    if (!statusText) {
+        return;
+    }
+
+    statusText.innerHTML = isError
+        ? `<strong class="text-rose-400">Error</strong> ${message}`
+        : `<strong class="text-amber-400">Cargando</strong> ${message}`;
+}
+
 function getPreferredLanguage() {
     const savedLang = localStorage.getItem('lang');
     if (savedLang && AppState.i18n[savedLang]) {
@@ -453,12 +464,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelEstacion2 = document.getElementById('model-estacion2');
 
     if (modelEstacion1) {
-        modelEstacion1.setAttribute('src', resolveModelUrl('model-estacion1'));
+        modelEstacion1.setAttribute('gltf-model', resolveModelUrl('model-estacion1'));
     }
 
     if (modelEstacion2) {
-        modelEstacion2.setAttribute('src', resolveModelUrl('model-estacion2'));
+        modelEstacion2.setAttribute('gltf-model', resolveModelUrl('model-estacion2'));
     }
+
+    if (modelEstacion1 || modelEstacion2) {
+        setModelStatus('Iniciando carga de modelos remotos...');
+    }
+
+    Promise.all([
+        modelEstacion1 ? new Promise((resolve, reject) => {
+            modelEstacion1.addEventListener('model-loaded', resolve, { once: true });
+            modelEstacion1.addEventListener('model-error', reject, { once: true });
+        }) : Promise.resolve(),
+        modelEstacion2 ? new Promise((resolve, reject) => {
+            modelEstacion2.addEventListener('model-loaded', resolve, { once: true });
+            modelEstacion2.addEventListener('model-error', reject, { once: true });
+        }) : Promise.resolve()
+    ]).then(() => {
+        setModelStatus('Modelos listos. Apunta a una marca.');
+    }).catch((error) => {
+        console.warn('No se pudieron cargar uno o más modelos remotos.', error);
+        setModelStatus('No se pudieron cargar los modelos desde R2. Revisa la URL o CORS.', true);
+    });
 
     bindLanguageSwitcher();
     bindNetworkEvents();

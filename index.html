@@ -115,16 +115,11 @@
              class="hidden" 
              id="ar-scene">
         
-        <a-assets>
-            <a-asset-item id="model-estacion1"></a-asset-item>
-            <a-asset-item id="model-estacion2"></a-asset-item>
-        </a-assets>
-
         <!-- Contenedor con rotación de giroscopio para mantener los modelos fijos en el espacio físico -->
         <a-entity id="world-anchor-container" gyro-rotation>
             <!-- Modelos globales con contenedores para separar tracking de gestos -->
             <a-entity id="anchor-estacion1" position="0 0 -5" visible="false">
-                <a-entity gltf-model="#model-estacion1" 
+                <a-entity id="model-estacion1"
                           scale="0.6 0.6 0.6" 
                           class="clickable"
                           gesture-handler="rotationEnabled: true; scaleEnabled: true">
@@ -132,7 +127,7 @@
             </a-entity>
 
             <a-entity id="anchor-estacion2" position="0 0 -5" visible="false">
-                <a-entity gltf-model="#model-estacion2" 
+                <a-entity id="model-estacion2"
                           scale="0.2 0.2 0.2" 
                           class="clickable"
                           gesture-handler="rotationEnabled: true; scaleEnabled: true">
