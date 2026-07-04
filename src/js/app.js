@@ -99,6 +99,7 @@ const DEFAULT_I18N = {
 const AppState = {
     isARMode: false,
     currentMarker: null,
+    activeTarget: null,
     lang: 'es',
     i18n: DEFAULT_I18N
 };
@@ -298,9 +299,16 @@ AFRAME.registerComponent('marker-anchor', {
         this.el.addEventListener('markerFound', () => {
             this.markerVisible = true;
             this.justFound = true;
+
+            if (AppState.activeTarget && AppState.activeTarget !== this.data.target) {
+                AppState.activeTarget.setAttribute('visible', 'false');
+                AppState.activeTarget.dataset.discovered = 'false';
+            }
+
             if (this.data.target) {
                 this.data.target.setAttribute('visible', 'true');
                 this.data.target.dataset.discovered = "true"; // Marcar como descubierto
+                AppState.activeTarget = this.data.target;
             }
         });
         
@@ -333,32 +341,6 @@ AFRAME.registerComponent('marker-anchor', {
             } else {
                 targetObject.position.copy(markerObject.position);
                 targetObject.quaternion.copy(markerObject.quaternion);
-            }
-        }
-        
-        // --- CONTROL DE VISIBILIDAD FUERA DE PLANO ---
-        // Si el marcador no está visible pero el modelo ya fue descubierto, verificar si está fuera de pantalla
-        if (!this.markerVisible && this.data.target && this.data.target.dataset.discovered === "true" && gyroComp) {
-            const targetObject = this.data.target.object3D;
-            const containerObject = container.object3D;
-            
-            // Calcular la posición del modelo con la rotación actual del contenedor aplicada
-            const relativePos = targetObject.position.clone().applyQuaternion(containerObject.quaternion);
-            relativePos.normalize();
-            
-            // Dirección hacia donde apunta la cámara de AR (siempre -Z)
-            const cameraDir = new THREE.Vector3(0, 0, -1);
-            const dotProduct = relativePos.dot(cameraDir);
-            
-            // Si el ángulo es mayor a ~40 grados (coseno < 0.76), el modelo se sale de pantalla
-            if (dotProduct < 0.76) {
-                if (this.data.target.getAttribute('visible') === 'true') {
-                    this.data.target.setAttribute('visible', 'false');
-                }
-            } else {
-                if (this.data.target.getAttribute('visible') === 'false') {
-                    this.data.target.setAttribute('visible', 'true');
-                }
             }
         }
     }
