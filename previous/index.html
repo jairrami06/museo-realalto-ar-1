@@ -4,74 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <title>WebAR - Museo Real Alto</title>
-    <meta name="theme-color" content="#1c1917">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/public/images/icon.svg" type="image/svg+xml">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
-    <script src="config.js"></script>
     <script src="src/js/app.js"></script>
     
     <style>
         body { margin: 0; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
-        a-scene#ar-scene {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-            background: transparent !important;
-        }
-        .a-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100% !important;
-            height: 100% !important;
-            z-index: 1;
-        }
+        .a-canvas { position: absolute; top: 0; left: 0; z-index: 1; }
         .ui-layer { z-index: 10; position: relative; }
     </style>
 </head>
 <body class="bg-stone-900 text-stone-100">
 
     <div id="screen-home" class="ui-layer fixed inset-0 flex flex-col justify-between p-6 transition-opacity duration-300 bg-cover bg-center" 
-            style="background-image: linear-gradient(to bottom, rgba(28,25,23,0.4), rgba(28,25,23,0.95)), url('public/images/home.webp');">
+         style="background-image: linear-gradient(to bottom, rgba(28,25,23,0.4), rgba(28,25,23,0.95)), url('https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?q=80&w=1000');">
         
-        <div class="flex items-start justify-between gap-4 mt-1">
-            <div class="text-[10px] uppercase tracking-[0.35em] text-stone-400 font-semibold">
-                Museo Arqueologico Real Alto
-            </div>
-            <div class="flex gap-2 text-[11px] font-semibold">
-                <button type="button" class="lang-switch bg-stone-950/70 border border-stone-800 rounded-full px-3 py-1.5 text-amber-400" data-lang-choice="es">ES</button>
-                <button type="button" class="lang-switch bg-stone-950/40 border border-stone-800 rounded-full px-3 py-1.5 text-stone-300" data-lang-choice="en">EN</button>
-                <button type="button" class="lang-switch bg-stone-950/40 border border-stone-800 rounded-full px-3 py-1.5 text-stone-300" data-lang-choice="fr">FR</button>
-            </div>
-        </div>
-
-        <div class="text-center mt-8">
-            <span class="text-amber-500 font-bold tracking-widest text-xs uppercase px-3 py-1 bg-amber-500/10 rounded-full border border-amber-500/20" data-i18n="ui.badge">
-                Complejo Cultural
+        <div class="text-center mt-12">
+            <span class="text-amber-500 font-bold tracking-widest text-xs uppercase px-3 py-1 bg-amber-500/10 rounded-full border border-amber-500/20">
+                Vinculación Comunitaria
             </span>
-            <h1 class="text-white text-4xl font-extrabold mt-3 tracking-tight" data-i18n="ui.title">Museo Real Alto</h1>
-            <p class="text-stone-400 text-sm mt-1" data-i18n="ui.location">Santa Elena · Ecuador</p>
+            <h1 class="text-white text-4xl font-extrabold mt-3 tracking-tight">Museo Real Alto</h1>
+            <p class="text-stone-400 text-sm mt-1">Complejo Arqueológico · Santa Elena</p>
         </div>
 
         <div class="bg-stone-900/80 backdrop-blur-md rounded-2xl p-6 mb-6 border border-stone-800 text-center shadow-xl">
-            <h2 class="text-amber-400 font-semibold mb-2 text-lg" data-i18n="ui.subtitle">Guía Interactiva en Realidad Aumentada</h2>
-            <p class="text-stone-300 text-xs leading-relaxed mb-6" data-i18n="ui.description">
+            <h2 class="text-amber-400 font-semibold mb-2 text-lg">Guía Interactiva en Realidad Aumentada</h2>
+            <p class="text-stone-300 text-xs leading-relaxed mb-6">
                 Descubre réplicas arqueológicas tridimensionales e historia interactiva directamente en el área abierta del museo.
             </p>
             
-                <button id="start-ar-button" onclick="startARExperience()"
+            <button onclick="startARExperience()" 
                     class="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-stone-950 font-bold py-3.5 px-6 rounded-xl transition duration-200 shadow-lg shadow-amber-500/20 text-sm tracking-wide">
-                <span data-i18n="ui.start">Iniciar Recorrido WebAR</span>
+                Iniciar Recorrido WebAR
             </button>
             
-            <p class="text-[10px] text-stone-500 mt-3 flex items-center justify-center gap-1" data-i18n="ui.warning">
+            <p class="text-[10px] text-stone-500 mt-3 flex items-center justify-center gap-1">
                 ⚠️ Requiere permisos de cámara y un entorno bien iluminado
             </p>
         </div>
@@ -79,7 +49,7 @@
 
     <div id="screen-ar-ui" class="ui-layer hidden fixed inset-0 pointer-events-none flex flex-col justify-between p-4">
         <div class="flex justify-between items-center pointer-events-auto w-full">
-            <button onclick="exitARExperience()" class="bg-stone-950/80 backdrop-blur-md text-stone-200 p-2.5 rounded-full border border-stone-800 active:scale-90 transition" aria-label="Volver al inicio" data-i18n-aria-label="ui.back">
+            <button onclick="exitARExperience()" class="bg-stone-950/80 backdrop-blur-md text-stone-200 p-2.5 rounded-full border border-stone-800 active:scale-90 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -91,16 +61,13 @@
                 <span id="gyro-debug" class="bg-stone-950/80 backdrop-blur-md text-rose-500 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-stone-800">
                     Giroscopio: Sin Señal ⚠️
                 </span>
-                <span id="network-status" class="bg-stone-950/80 backdrop-blur-md text-emerald-400 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-stone-800">
-                    En linea
-                </span>
             </div>
             <div class="w-10"></div> </div>
 
         <div class="w-full bg-stone-950/90 text-white p-4 rounded-xl pointer-events-auto border border-stone-800 shadow-2xl mb-4 max-w-md mx-auto">
             <div class="flex items-center gap-3">
                 <div class="w-2 h-2 bg-amber-500 rounded-full animate-ping"></div>
-                <p id="scan-status" class="text-xs text-stone-300 font-medium tracking-wide" data-i18n="ui.scanPrompt">
+                <p id="scan-status" class="text-xs text-stone-300 font-medium tracking-wide">
                     Apunta la cámara hacia un tótem informativo del museo...
                 </p>
             </div>
@@ -109,26 +76,30 @@
 
     <a-scene embedded 
              vr-mode-ui="enabled: false" 
-             loading-screen="enabled: false"
              arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" 
              gesture-detector
              class="hidden" 
              id="ar-scene">
         
+        <a-assets>
+            <a-asset-item id="model-estacion1" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Duck/glTF-Binary/Duck.glb"></a-asset-item>
+            <a-asset-item id="model-estacion2" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/2.0/Lantern/glTF-Binary/Lantern.glb"></a-asset-item>
+        </a-assets>
+
         <!-- Contenedor con rotación de giroscopio para mantener los modelos fijos en el espacio físico -->
         <a-entity id="world-anchor-container" gyro-rotation>
             <!-- Modelos globales con contenedores para separar tracking de gestos -->
             <a-entity id="anchor-estacion1" position="0 0 -5" visible="false">
-                <a-entity id="model-estacion1" gltf-model="https://pub-19dae6d2930e4937969e96f579ac3f0c.r2.dev/valdivia.glb"
-                          scale="1.15 1.15 1.15"
+                <a-entity gltf-model="#model-estacion1" 
+                          scale="0.6 0.6 0.6" 
                           class="clickable"
                           gesture-handler="rotationEnabled: true; scaleEnabled: true">
                 </a-entity>
             </a-entity>
 
             <a-entity id="anchor-estacion2" position="0 0 -5" visible="false">
-                <a-entity id="model-estacion2" gltf-model="https://pub-19dae6d2930e4937969e96f579ac3f0c.r2.dev/estatua.glb"
-                          scale="0.45 0.45 0.45"
+                <a-entity gltf-model="#model-estacion2" 
+                          scale="0.2 0.2 0.2" 
                           class="clickable"
                           gesture-handler="rotationEnabled: true; scaleEnabled: true">
                 </a-entity>

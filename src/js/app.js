@@ -99,6 +99,7 @@ const DEFAULT_I18N = {
 const AppState = {
     isARMode: false,
     currentMarker: null,
+    activeTarget: null,
     lang: 'es',
     i18n: DEFAULT_I18N
 };
@@ -222,6 +223,21 @@ async function registerServiceWorker() {
     }
 }
 
+async function requestCameraAccess() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('getUserMedia no está disponible en este navegador');
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+            facingMode: { ideal: 'environment' }
+        },
+        audio: false
+    });
+
+    stream.getTracks().forEach((track) => track.stop());
+}
+
 // Componente para leer el giroscopio físico y rotar un contenedor en sentido inverso
 AFRAME.registerComponent('gyro-rotation', {
     init: function () {
@@ -283,9 +299,16 @@ AFRAME.registerComponent('marker-anchor', {
         this.el.addEventListener('markerFound', () => {
             this.markerVisible = true;
             this.justFound = true;
+
+            if (AppState.activeTarget && AppState.activeTarget !== this.data.target) {
+                AppState.activeTarget.setAttribute('visible', 'false');
+                AppState.activeTarget.dataset.discovered = 'false';
+            }
+
             if (this.data.target) {
                 this.data.target.setAttribute('visible', 'true');
                 this.data.target.dataset.discovered = "true"; // Marcar como descubierto
+                AppState.activeTarget = this.data.target;
             }
         });
         
@@ -320,32 +343,6 @@ AFRAME.registerComponent('marker-anchor', {
                 targetObject.quaternion.copy(markerObject.quaternion);
             }
         }
-        
-        // --- CONTROL DE VISIBILIDAD FUERA DE PLANO ---
-        // Si el marcador no está visible pero el modelo ya fue descubierto, verificar si está fuera de pantalla
-        if (!this.markerVisible && this.data.target && this.data.target.dataset.discovered === "true" && gyroComp) {
-            const targetObject = this.data.target.object3D;
-            const containerObject = container.object3D;
-            
-            // Calcular la posición del modelo con la rotación actual del contenedor aplicada
-            const relativePos = targetObject.position.clone().applyQuaternion(containerObject.quaternion);
-            relativePos.normalize();
-            
-            // Dirección hacia donde apunta la cámara de AR (siempre -Z)
-            const cameraDir = new THREE.Vector3(0, 0, -1);
-            const dotProduct = relativePos.dot(cameraDir);
-            
-            // Si el ángulo es mayor a ~40 grados (coseno < 0.76), el modelo se sale de pantalla
-            if (dotProduct < 0.76) {
-                if (this.data.target.getAttribute('visible') === 'true') {
-                    this.data.target.setAttribute('visible', 'false');
-                }
-            } else {
-                if (this.data.target.getAttribute('visible') === 'false') {
-                    this.data.target.setAttribute('visible', 'true');
-                }
-            }
-        }
     }
 });
 
@@ -353,7 +350,7 @@ AFRAME.registerComponent('marker-anchor', {
  * Inicializa la experiencia de Realidad Aumentada
  * Oculta la UI de la Landing Page y activa el renderizado 3D/Cámara
  */
-function startARExperience() {
+async function startARExperience() {
     AppState.isARMode = true;
     
     // Alerta de depuración para contextos locales no seguros (HTTP por IP local)
@@ -368,6 +365,14 @@ function startARExperience() {
                 console.log("Permiso de orientación:", permissionState);
             })
             .catch(console.error);
+    }
+
+    try {
+        await requestCameraAccess();
+    } catch (error) {
+        console.warn('No se pudo obtener acceso a la cámara antes de iniciar AR.', error);
+        alert('No fue posible activar la cámara. Revisa el permiso del navegador y vuelve a intentar.');
+        return;
     }
     
     // UI Elements
@@ -387,6 +392,7 @@ function startARExperience() {
     if (screenARUi && arScene) {
         screenARUi.classList.remove('hidden');
         arScene.classList.remove('hidden');
+        arScene.style.display = 'block';
         
         // Forzar al motor de A-Frame a redimensionar y capturar la cámara de forma nativa
         arScene.resize();
@@ -424,17 +430,6 @@ document.addEventListener('DOMContentLoaded', () => {
         AppState.lang = getPreferredLanguage();
         setLanguage(AppState.lang);
     });
-
-    const modelEstacion1 = document.getElementById('model-estacion1');
-    const modelEstacion2 = document.getElementById('model-estacion2');
-
-    if (modelEstacion1) {
-        modelEstacion1.setAttribute('src', resolveModelUrl('model-estacion1'));
-    }
-
-    if (modelEstacion2) {
-        modelEstacion2.setAttribute('src', resolveModelUrl('model-estacion2'));
-    }
 
     bindLanguageSwitcher();
     bindNetworkEvents();
